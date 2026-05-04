@@ -26,17 +26,11 @@ Utilizada pelo **Parser CYK**, a gramática foi convertida para garantir que tod
 
 ```text
 E -> E X1 | T X2 | P X3 | Csub U | Cpe X4 | N D | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 T -> T X2 | P X3 | Csub U | Cpe X4 | N D | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 F -> P X3 | Csub U | Cpe X4 | N D | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 P -> Csub U | Cpe X4 | N D | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 U -> Cpe X4 | N D | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 N -> N D | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 D -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 X1 -> Csoma T | Csub T
