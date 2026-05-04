@@ -10,7 +10,7 @@ Este repositório contém a solução para o Exercício Programa 2 da disciplina
 O projeto faz uso de duas gramáticas distintas para atender aos requisitos de cada algoritmo de parsing implementado. As árvores de expansão visuais para a expressão teste `9^(1*-2+3)-3/(6+3)` estão documentadas no arquivo de entrega oficial do projeto (`EP2 LFA.docx`).
 
 ### 1. Gramática Livre de Contexto (Sem Forma Normal)
-Utilizada pelo **Parser de Earley**, esta gramática respeita a precedência e associatividade natural das operações matemáticas[cite: 24]:
+Utilizada pelo **Parser de Earley**, esta gramática respeita a precedência e associatividade natural das operações matemáticas:
 
 ```text
 E -> E + T | E - T | T
