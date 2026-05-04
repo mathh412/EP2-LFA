@@ -1,51 +1,41 @@
 class EarleyParser
   def avisos(verificacao, entrada, era_pra_ser)
-    puts era_pra_ser 
-    puts "e foi "
+    puts "---"
+    puts "Entrada: #{entrada}"
+    puts "Esperado: #{era_pra_ser}"
+    
     if verificacao
-      puts "Aceito"
+      puts "Status: Aceito"
       resultado = reconstruir(gramatica.simbolo_inicial, 0, entrada.length, entrada)
-      puts resultado.inspect
+      puts "Caminho:"
+      p resultado
+      resultado
     else
-      puts "Não aceito"
+      puts "Status: Não aceito"
       ponto = identificar_ponto_falha(entrada)
       marcador = entrada.dup
       marcador.insert(ponto, " [!] ")
-      puts "Falha: #{marcador}"
+      msg = "Falha: #{marcador}"
+      puts msg
+      msg
     end
-    nil
   end
  
   private
  
-  # Reconstrói a árvore de derivação a partir da tabela de Earley.
-  #
-  # Convenção de saída:
-  #   Terminal           → Integer (se número) ou String
-  #   Nó interno binário → [label, operando_esquerdo, operando_direito]
-  #
-  # Exemplo: 4+5*2  →  ["soma", 4, ["multiplicacao", 5, 2]]
-  #
-  # Busca em @tabela[fim] um estado completo com:
-  #   - regra.esquerda == simbolo
-  #   - inicio == ini
-  # e reconstrói seus filhos recursivamente.
   def reconstruir(simbolo, ini, fim, entrada)
-    # Caso base: terminal de um único caractere
     if ini + 1 == fim
       token = entrada[ini]
       return token.match?(/\A\d\z/) ? token.to_i : token
     end
  
-    # Busca estado completo que deriva 'simbolo' de ini até fim
     estado = @tabela[fim].estados.find do |e|
       e.regra.esquerda == simbolo &&
       e.completo?                 &&
       e.inicio == ini             &&
-      e.regra.direita.length > 1  # ignora regra artificial S->S
+      e.regra.direita.length > 1
     end
  
-    # Tenta também regra unitária (length == 1) se não achou binária
     estado ||= @tabela[fim].estados.find do |e|
       e.regra.esquerda == simbolo &&
       e.completo?                 &&
@@ -58,12 +48,9 @@ class EarleyParser
     traduzir(simbolo, estado.regra.direita, filhos)
   end
  
-  # Dado um array de símbolos de uma regra e o intervalo [ini, fim),
-  # encontra a partição correta e reconstrói cada filho.
   def reconstruir_filhos(direita, ini, fim, entrada)
     return [] if direita.empty?
  
-    # Caso base: símbolo único
     if direita.length == 1
       sym = direita[0]
       if terminal_da_gramatica?(sym)
@@ -74,13 +61,10 @@ class EarleyParser
       end
     end
  
-    # Tenta cada ponto de corte para dividir os primeiros (length-1) símbolos
-    # do último símbolo
     prefixo = direita[0...-1]
     ultimo  = direita[-1]
  
     (ini...fim).each do |meio|
-      # Verifica se o prefixo cobre [ini, meio) e o último cobre [meio, fim)
       next unless prefixo_valido?(prefixo, ini, meio, entrada) &&
                   simbolo_cobre?(ultimo, meio, fim, entrada)
  
@@ -93,7 +77,6 @@ class EarleyParser
     []
   end
  
-  # Verifica se a sequência de símbolos 'prefixo' pode cobrir [ini, meio)
   def prefixo_valido?(prefixo, ini, meio, entrada)
     return ini == meio if prefixo.empty?
  
@@ -110,7 +93,6 @@ class EarleyParser
     end
   end
  
-  # Verifica se o símbolo 'sym' pode cobrir o intervalo [ini, fim)
   def simbolo_cobre?(sym, ini, fim, entrada)
     if terminal_da_gramatica?(sym)
       fim == ini + 1 && entrada[ini] == sym
@@ -121,7 +103,6 @@ class EarleyParser
     end
   end
  
-  # Reconstrói um único símbolo no intervalo [ini, fim)
   def reconstruir_simbolo(sym, ini, fim, entrada)
     if terminal_da_gramatica?(sym)
       token = entrada[ini]
@@ -131,12 +112,10 @@ class EarleyParser
     end
   end
  
-  # Um símbolo é terminal se não aparece como esquerda de nenhuma regra
   def terminal_da_gramatica?(sym)
     @gramatica.regras.none? { |r| r.esquerda == sym }
   end
  
-  # Traduz os filhos para o formato [label, esq, dir] conforme a gramática
   def traduzir(simbolo, direita, filhos)
     case simbolo
     when "E"
@@ -156,7 +135,7 @@ class EarleyParser
       filhos.length == 1 ? filhos[0] : filhos
  
     when "U"
-      return ["parenteses", filhos[1]] if filhos.length == 3
+      return filhos[1] if filhos.length == 3
       filhos.length == 1 ? filhos[0] : filhos
  
     when "N"
@@ -181,4 +160,3 @@ class EarleyParser
     alcance
   end
 end
- 

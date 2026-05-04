@@ -6,7 +6,7 @@ regras = [
   Regra.new('E', %w[E + T]),
   Regra.new('E', %w[E - T]),
   Regra.new('E', %w[T]),
-  Regra.new('T', %w[T * T]),
+  Regra.new('T', %w[T * F]),
   Regra.new('T', %w[T / F]),
   Regra.new('T', %w[F]),
   

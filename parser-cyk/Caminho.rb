@@ -1,14 +1,17 @@
 class CYKParser
   def avisos(verificacao, entrada, era_pra_ser)
-    puts era_pra_ser
-    puts "e foi"
+    puts "---"
+    puts "Entrada: #{entrada}"
+    puts "Esperado: #{era_pra_ser}"
+    
     if verificacao
-      puts "Aceito"
+      puts "Status: Aceito"
       resultado = reconstruir(0, entrada.length - 1, @gramatica.simbolo_inicial, entrada)
-      puts resultado.inspect
+      puts "Caminho:"
+      p resultado
       resultado
     else
-      puts "Não aceito"
+      puts "Status: Não aceito"
       ponto = identificar_ponto_falha(entrada.length)
       marcador = entrada.dup
       marcador.insert(ponto, " [!] ")
@@ -20,15 +23,7 @@ class CYKParser
  
   private
  
-  # Reconstrói a árvore de derivação a partir da tabela CYK.
-  #
-  # Convenção de saída:
-  #   Terminal           → Integer (se número) ou String
-  #   Nó interno binário → [label, operando_esquerdo, operando_direito]
-  #
-  # Exemplo: 4+5*2  →  ["soma", 4, ["multiplicacao", 5, 2]]
   def reconstruir(i, j, simbolo, entrada)
-    # Caso base: célula diagonal = terminal
     if i == j
       token = entrada[i]
       return token.match?(/\A\d\z/) ? token.to_i : token
@@ -44,15 +39,12 @@ class CYKParser
       (i...j).each do |k|
         next unless @tabela[i][k].include?(b) && @tabela[k + 1][j].include?(c)
  
-        # Nós de passagem X1/X2/X3: carregam [label, operando_dir] para o pai montar
         if ["X1", "X2", "X3"].include?(simbolo)
           label    = traduzir_operador(b)
           operando = reconstruir(k + 1, j, c, entrada)
           return [label, operando]
         end
  
-        # Qualquer símbolo com X1/X2/X3 no lado direito: pai -> esq Xn
-        # Xn devolve [label, op_dir]; monta [label, esq, op_dir]
         if ["X1", "X2", "X3"].include?(c)
           esq           = reconstruir(i, k, b, entrada)
           par           = reconstruir(k + 1, j, c, entrada)
@@ -60,27 +52,21 @@ class CYKParser
           return [label, esq, op_dir]
         end
  
-        # Parênteses: qualquer símbolo com Cpe X4
-        # X4 -> E Cpd; descarta '(' e ')' e retorna só o E interno
         if b == "Cpe" && c == "X4"
-          inner = reconstruir_inner_parenteses(k + 1, j, entrada)
-          return ["parenteses", inner]
+          return reconstruir_inner_parenteses(k + 1, j, entrada)
         end
  
-        # Negativação: qualquer símbolo com Csub U
         if b == "Csub" && c == "U"
           operando = reconstruir(k + 1, j, c, entrada)
           return ["negativacao", operando]
         end
  
-        # Números multi-dígito: N -> N D
-        if ["N", "D", "U"].include?(simbolo)
+        if b == "N" && c == "D"
           esq = reconstruir(i, k, b, entrada)
           dir = reconstruir(k + 1, j, c, entrada)
           return "#{esq}#{dir}".to_i
         end
  
-        # Caso genérico
         esq = reconstruir(i, k, b, entrada)
         dir = reconstruir(k + 1, j, c, entrada)
         return [simbolo, esq, dir]
@@ -90,14 +76,13 @@ class CYKParser
     entrada[i..j]
   end
  
-  # Desce em X4 (E Cpd) e retorna apenas o E interno, descartando o ')'
   def reconstruir_inner_parenteses(i, j, entrada)
     @gramatica.regras.each do |regra|
       next if regra.esquerda != "X4"
       next if regra.direita.length < 2
  
-      b = regra.direita[0]  # E
-      c = regra.direita[1]  # Cpd
+      b = regra.direita[0]
+      c = regra.direita[1]
  
       (i...j).each do |k|
         next unless @tabela[i][k].include?(b) && @tabela[k + 1][j].include?(c)
@@ -107,7 +92,6 @@ class CYKParser
     entrada[i..j]
   end
  
-  # Mapeia símbolo do operador → nome da operação
   def traduzir_operador(simbolo)
     case simbolo
     when "Csoma" then "soma"
