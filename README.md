@@ -1,5 +1,6 @@
 # EP2 LFA - Reconhecedor Sintático de Expressões Matemáticas
 **Colaboradores:** Matheus Henrique Lima Batista, Paula Martins, Eric Donato
+
 Este repositório contém a solução para o Exercício Programa 2 da disciplina de Linguagens Formais e Autômatos (LFA). O objetivo deste projeto é implementar analisadores sintáticos (Parsers) baseados em Gramáticas Livres de Contexto (GLC) capazes de reconhecer expressões matemáticas, validá-las e gerar a estrutura de árvore (AST) em formato de *array* aninhado.
 
 ⚠️ **Nota Técnica:** Conforme especificado no enunciado, este reconhecedor foca apenas na validação sintática e estruturação da árvore de operações. Ele **não** resolve (calcula) a expressão matemática (etapa correspondente à disciplina de Compiladores).
